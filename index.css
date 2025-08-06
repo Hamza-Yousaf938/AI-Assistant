@@ -1,0 +1,212 @@
+:root {
+  --primary-color: #4285F4;
+  --primary-dark: #3367D6;
+  --background-color: #f8f9fa;
+  --surface-color: #ffffff;
+  --text-color: #202124;
+  --text-light: #5f6368;
+  --border-color: #dadce0;
+  --error-color: #d93025;
+  --success-color: #1e8e3e;
+  --warning-color: #f9ab00;
+  --font-family: 'Roboto', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+header p {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  max-width: 600px;
+  margin: 0.5rem auto 0;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+}
+
+#input-section, #output-section {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.08);
+}
+
+#input-section h2, #output-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color);
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+}
+
+input[type="text"], textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: var(--font-family);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="text"]:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+textarea {
+  resize: vertical;
+}
+
+#analyze-btn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+#analyze-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark);
+}
+
+#analyze-btn:disabled {
+  background-color: #9fc2f9;
+  cursor: not-allowed;
+}
+
+.loader {
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  width: 18px;
+  height: 18px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#analysis-result .placeholder {
+  color: var(--text-light);
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+#analysis-result .error {
+  color: var(--error-color);
+  text-align: center;
+  padding: 3rem 1rem;
+  font-weight: 500;
+}
+
+.result-block {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.result-block:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.result-block h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.result-block p, .result-block div {
+    color: var(--text-color);
+}
+
+.result-block ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.result-block li {
+    padding-left: 1.2rem;
+    position: relative;
+    margin-bottom: 0.25rem;
+}
+
+.result-block li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+}
+
+.skill-match--high { color: var(--success-color) !important; font-weight: 700; }
+.skill-match--moderate { color: var(--warning-color) !important; font-weight: 700; }
+.skill-match--low { color: var(--error-color) !important; font-weight: 700; }
+
+.recommendation p {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
