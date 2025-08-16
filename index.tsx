@@ -2,14 +2,6 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import { GoogleGenAI } from '@google/genai';
-
-// Ensure the API key is available.
-if (!process.env.API_KEY) {
-  throw new Error('API_KEY environment variable not set');
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const jobTitleInput = document.getElementById('job-title') as HTMLInputElement;
 const requiredSkillsInput = document.getElementById('required-skills') as HTMLInputElement;
@@ -21,7 +13,6 @@ const analysisResultDiv = document.getElementById('analysis-result') as HTMLElem
 
 /**
  * Sets the loading state for the analysis button.
- * @param isLoading - Whether the loading state should be active.
  */
 function setLoading(isLoading: boolean) {
   if (isLoading) {
@@ -37,14 +28,12 @@ function setLoading(isLoading: boolean) {
 
 /**
  * Creates the prompt for the Gemini API call.
- * @returns The constructed prompt string.
  */
 function createPrompt(): string {
   const jobTitle = jobTitleInput.value.trim();
   const requiredSkills = requiredSkillsInput.value.trim();
   const candidateInfo = candidateInfoInput.value.trim();
 
-  // Simple validation
   if (!jobTitle || !requiredSkills || !candidateInfo) {
     alert('Please fill in all fields before analyzing.');
     return '';
@@ -53,21 +42,20 @@ function createPrompt(): string {
   return `
     You are an expert AI Hiring Assistant. Your purpose is to provide a professional, concise, and structured analysis of a job candidate based on the provided information.
 
-    **Analysis Instructions:**
-    1.  **Summarize:** Briefly summarize the candidate's profile and experience.
-    2.  **Evaluate Skills:** Assess how well the candidate's skills match the required skills. Rate the match as High, Moderate, or Low.
-    3.  **Identify Flags & Strengths:** Point out any potential red flags (e.g., missing qualifications, job hopping) and standout strengths (e.g., exceptional project work, rare skills).
-    4.  **Recommend:** Conclude with a clear recommendation: "Shortlist", "Reject", or "Needs Further Review".
+    ### Analysis Instructions
+    1. Summarize: Briefly summarize the candidate's profile and experience.
+    2. Evaluate Skills: Assess how well the candidate's skills match the required skills. Rate the match as High, Moderate, or Low.
+    3. Identify Flags & Strengths: Point out any potential red flags (e.g., missing qualifications, job hopping) and standout strengths (e.g., exceptional project work, rare skills).
+    4. Recommend: Conclude with a clear recommendation: "Shortlist", "Reject", or "Needs Further Review".
 
-    **Candidate Information:**
-    - **Job Title:** ${jobTitle}
-    - **Required Skills:** ${requiredSkills}
-    - **Candidate Resume/Details:**
+    ### Candidate Information
+    - Job Title: ${jobTitle}
+    - Required Skills: ${requiredSkills}
+    - Candidate Resume/Details:
       ${candidateInfo}
 
     ---
-
-    **Please provide the analysis in the following strict format, using these exact headings:**
+    Please provide the analysis in the following strict format:
 
     ### Candidate Summary
     [Your summary here]
@@ -85,59 +73,55 @@ function createPrompt(): string {
 
 /**
  * Parses the raw text response from the API and formats it into HTML.
- * @param text - The raw text from the Gemini API.
- * @returns An HTML string to be inserted into the results div.
  */
 function formatAnalysis(text: string): string {
-    const sections = {
-        'Candidate Summary': '',
-        'Skill Match': '',
-        'Red Flags & Strengths': '',
-        'Recommendation': ''
-    };
+  const sections = {
+    'Candidate Summary': '',
+    'Skill Match': '',
+    'Red Flags & Strengths': '',
+    'Recommendation': ''
+  };
 
-    const lines = text.split('\n');
-    let currentSection: keyof typeof sections | null = null;
+  const lines = text.split('\n');
+  let currentSection: keyof typeof sections | null = null;
 
-    for (const line of lines) {
-        const trimmedLine = line.trim();
-        if (trimmedLine.startsWith('### ')) {
-            const header = trimmedLine.substring(4).trim() as keyof typeof sections;
-            if (header in sections) {
-                currentSection = header;
-            }
-        } else if (currentSection && trimmedLine) {
-            sections[currentSection] += `${trimmedLine.replace(/^- /, '<li>')}</li>`;
-        }
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith('### ')) {
+      const header = trimmedLine.substring(4).trim() as keyof typeof sections;
+      if (header in sections) {
+        currentSection = header;
+      }
+    } else if (currentSection && trimmedLine) {
+      sections[currentSection] += `${trimmedLine.replace(/^- /, '<li>')}</li>`;
     }
+  }
 
-    // Replace bullet points with proper list items
-    for (const key in sections) {
-        if (sections[key as keyof typeof sections].includes('<li>')) {
-            sections[key as keyof typeof sections] = `<ul>${sections[key as keyof typeof sections]}</ul>`;
-        }
+  for (const key in sections) {
+    if (sections[key as keyof typeof sections].includes('<li>')) {
+      sections[key as keyof typeof sections] = `<ul>${sections[key as keyof typeof sections]}</ul>`;
     }
-    
-    return `
-        <div class="result-block">
-            <h4>Candidate Summary</h4>
-            <p>${sections['Candidate Summary']}</p>
-        </div>
-        <div class="result-block">
-            <h4>Skill Match</h4>
-            <p class="skill-match--${sections['Skill Match'].toLowerCase().trim()}">${sections['Skill Match']}</p>
-        </div>
-        <div class="result-block">
-            <h4>Red Flags & Strengths</h4>
-            <div>${sections['Red Flags & Strengths']}</div>
-        </div>
-        <div class="result-block recommendation">
-            <h4>Recommendation</h4>
-            <p>${sections['Recommendation']}</p>
-        </div>
-    `;
+  }
+
+  return `
+    <div class="result-block">
+      <h4>Candidate Summary</h4>
+      <p>${sections['Candidate Summary']}</p>
+    </div>
+    <div class="result-block">
+      <h4>Skill Match</h4>
+      <p class="skill-match--${sections['Skill Match'].toLowerCase().trim()}">${sections['Skill Match']}</p>
+    </div>
+    <div class="result-block">
+      <h4>Red Flags & Strengths</h4>
+      <div>${sections['Red Flags & Strengths']}</div>
+    </div>
+    <div class="result-block recommendation">
+      <h4>Recommendation</h4>
+      <p>${sections['Recommendation']}</p>
+    </div>
+  `;
 }
-
 
 /**
  * Main function to handle the analysis process.
@@ -150,17 +134,24 @@ async function handleAnalyzeClick() {
   analysisResultDiv.innerHTML = '<p class="placeholder">Analyzing, please wait...</p>';
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: prompt }),
     });
-    
-    const analysisHtml = formatAnalysis(response.text);
-    analysisResultDiv.innerHTML = analysisHtml;
 
+    const data = await response.json();
+
+    if (data.error) {
+      analysisResultDiv.innerHTML = `<p class="error">Error: ${data.error}</p>`;
+      return;
+    }
+
+    const analysisHtml = formatAnalysis(data.reply);
+    analysisResultDiv.innerHTML = analysisHtml;
   } catch (error) {
     console.error('Error analyzing candidate:', error);
-    analysisResultDiv.innerHTML = `<p class="error">An error occurred during analysis. Please check the console for details.</p>`;
+    analysisResultDiv.innerHTML = `<p class="error">An error occurred during analysis.</p>`;
   } finally {
     setLoading(false);
   }
